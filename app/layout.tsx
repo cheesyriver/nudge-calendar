@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
-import { Montserrat, Geist } from "next/font/google";
+import { Montserrat } from "next/font/google";
 import "./globals.css";
-import { cn } from "@/lib/utils";
-
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+import { ThemeProvider } from "@/components/providers/theme-provider";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -20,11 +18,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn("font-sans", geist.variable)}>
+    <html lang="en" suppressHydrationWarning className={montserrat.className}>
       <body
         className={montserrat.className}
       >
+        <ThemeProvider
+            attribute="class"
+            defaultTheme="dark"
+            themes={['light', 'dark']}
+          >
         {children}
+        </ThemeProvider>
       </body>
     </html>
   );
