@@ -26,3 +26,10 @@ body{
   background-color: var(--base-color);
   color: var(--primary-text);
 }
+
+.sx-react-calendar-wrapper {
+  width: 1200px;
+  max-width: 100vw;
+  height: 800px;
+  max-height: 90vh;
+}
