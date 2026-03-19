@@ -22,6 +22,24 @@
   --border-color: #0000000d;
 }
 
+@layer base {
+  :root {
+    --background: var(--base-color);
+    --foreground: var(--primary-text);
+    --muted: var(--base-variant);
+    --border: var(--border-color);
+    --primary: var(--accent-color);
+  }
+
+  .dark {
+    --background: var(--base-color);
+    --foreground: var(--primary-text);
+    --muted: var(--base-variant);
+    --border: var(--border-color);
+    --primary: var(--accent-color);
+  }
+}
+
 body{
   background-color: var(--base-color);
   color: var(--primary-text);

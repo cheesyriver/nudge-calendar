@@ -30,17 +30,10 @@ export function Day({ date, isCurrentMonth, events, onClick }: Readonly<DayProps
   const extraEventsCount = dayEvents.length - MAX_VISIBLE_EVENTS;
 
   return (
-    <button type="button" onClick={() => onClick(date)} className={cn("group relative flex flex-col items-stretch h-32 p-1 transition-all outline-none", "border-r nth-[7n]:border-r-0", "border-b nth-last-[-n+7]:border-b-0", "hover:bg-accent/50 focus-visible:bg-accent/50 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary", isCurrentMonth ? "text-foreground":"text-gray-500")}>
+    <button type="button" onClick={() => onClick(date)} className={cn("group relative flex flex-col items-stretch h-32 p-1 transition-all outline-none", "border-r nth-[7n]:border-r-0", "border-b nth-last-[-n+7]:border-b-0", "hover:cursor-pointer")}>
       {/* Day Number */}
       <div className="flex justify-start mb-1">
-        <span
-          className={cn(
-            "flex items-center justify-center w-7 h-7 text-sm font-medium rounded-full transition-colors",
-            isToday(date) 
-              ? "bg-primary text-primary-foreground font-bold" 
-              : "group-hover:bg-muted"
-          )}
-        >
+        <span className={cn("flex items-center justify-center w-7 h-7 text-sm font-medium rounded-full transition-colors", isCurrentMonth ? "text-foreground":"text-(--opaque-color)")}>
           {format(date, 'd')}
         </span>
       </div>
@@ -60,7 +53,7 @@ export function Day({ date, isCurrentMonth, events, onClick }: Readonly<DayProps
         ))}
 
         {extraEventsCount > 0 && (
-          <p className="px-1 text-[10px] font-semibold text-muted-foreground mt-0.5">
+          <p className="px-1 text-[10px] font-semibold text-(--opaque-color)">
             + {extraEventsCount} more
           </p>
         )}

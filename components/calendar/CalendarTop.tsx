@@ -54,7 +54,7 @@ export function CalendarTop({
           <SelectTrigger className="w-30">
             <SelectValue placeholder="View" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent position="popper" className='bg-(--base-color)'>
             <SelectItem value="day">Day</SelectItem>
             <SelectItem value="week">Week</SelectItem>
             <SelectItem value="month">Month</SelectItem>
