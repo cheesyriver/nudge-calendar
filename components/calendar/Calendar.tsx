@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { 
   addMonths, subMonths, addWeeks, subWeeks, 
   addDays, subDays, startOfToday,
@@ -8,6 +8,7 @@ import {
 import { CalendarTop } from './CalendarTop';
 import { MonthView } from './month view/MonthView';
 import { CalendarEvent } from './month view/Day';
+import { WeekView } from './week view/WeekView';
 
 export function Calendar() {
   const [view, setView] = useState('month');
@@ -58,10 +59,8 @@ export function Calendar() {
           />
         )}
         
-        {view !== 'month' && (
-          <div className="flex items-center justify-center h-full text-muted-foreground animate-pulse">
-            {view.charAt(0).toUpperCase() + view.slice(1)} view coming soon...
-          </div>
+        {view === 'week' && (
+          <WeekView currentDate={currentDate} events={events} />
         )}
       </div>
     </div>
