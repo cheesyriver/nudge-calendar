@@ -5,7 +5,11 @@ import {
   addDays, 
   format, 
   isSameDay, 
-  startOfDay 
+  startOfDay,
+  endOfDay,
+  differenceInMinutes,
+  max,
+  min
 } from "date-fns";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
@@ -25,6 +29,7 @@ export function WeekView({ currentDate, events }: Readonly<WeekViewProps>) {
   return (
     <div className="flex flex-col h-170 bg-background overflow-hidden">
       
+      {/* 1. Header */}
       <div className="flex flex-none border-b" style={{ borderColor: 'var(--border-color)' }}>
         <div className="w-16 shrink-0" /> 
         <div 
@@ -58,7 +63,7 @@ export function WeekView({ currentDate, events }: Readonly<WeekViewProps>) {
             {hours.map((hour) => (
               <div key={hour} className="h-20 relative">
                 <span className="absolute -top-2 right-2 text-[10px] font-medium text-muted-foreground uppercase">
-                  {hour === 0 ? "" : format(new Date().setHours(hour), "h a")}
+                  {hour === 0 ? "" : format(new Date().setHours(hour, 0, 0, 0), "h a")}
                 </span>
               </div>
             ))}
@@ -70,7 +75,11 @@ export function WeekView({ currentDate, events }: Readonly<WeekViewProps>) {
             style={{ borderColor: 'var(--border-color)'}}
           >
             {weekDays.map((day) => {
-              const dayEvents = events.filter(e => isSameDay(startOfDay(e.start), day));
+              const dayStart = startOfDay(day);
+              const dayEnd = endOfDay(day);
+
+              // Filter events that overlap with this specific day of the week
+              const dayEvents = events.filter(e => e.start <= dayEnd && e.end >= dayStart);
               
               return (
                 <div key={day.toString()} className="relative h-full min-h-480">
@@ -85,25 +94,37 @@ export function WeekView({ currentDate, events }: Readonly<WeekViewProps>) {
 
                   {/* Absolute Positioned Events */}
                   {dayEvents.map((event) => {
-                    const startHour = event.start.getHours();
-                    const startMinutes = event.start.getMinutes();
+                    // Stops Events going off page (Clamp)
+                    const visualStart = max([event.start, dayStart]);
+                    const visualEnd = min([event.end, dayEnd]);
+
+                    const startHour = visualStart.getHours();
+                    const startMinutes = visualStart.getMinutes();
                     const top = (startHour * 80) + (startMinutes / 60 * 80);
+
+                    const durationInMinutes = differenceInMinutes(visualEnd, visualStart);
+                    const height = (durationInMinutes / 60) * 80;
 
                     return (
                       <div
                         key={event.id}
                         className={cn(
-                          "absolute left-1 right-1 rounded-md p-2 text-xs border shadow-sm transition-all hover:brightness-95",
+                          "absolute left-0.5 right-0.5 rounded-md p-1.5 text-[10px] border shadow-sm transition-all hover:brightness-95 overflow-hidden",
                           event.color || "bg-(--accent-color) text-white border-white/10"
                         )}
                         style={{ 
                           top: `${top}px`, 
-                          height: '60px', 
+                          height: `${height}px`, 
+                          minHeight: '20px',
                           zIndex: 10 
                         }}
                       >
                         <p className="font-bold truncate leading-tight">{event.title}</p>
-                        <p className="opacity-80 text-[10px]">{format(event.start, "h:mm a")}</p>
+                        {height > 40 && (
+                           <p className="opacity-80 text-[9px] truncate">
+                             {format(event.start, "h:mm a")}
+                           </p>
+                        )}
                       </div>
                     );
                   })}
