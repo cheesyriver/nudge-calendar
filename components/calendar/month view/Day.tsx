@@ -1,16 +1,9 @@
-'use client';
+"use client";
 
-import { useMemo } from 'react';
-import { isToday, startOfDay, format, isWithinInterval } from 'date-fns';
+import { useMemo } from "react";
+import { isToday, startOfDay, format, isWithinInterval } from "date-fns";
 import { cn } from "@/lib/utils";
-
-export interface CalendarEvent {
-  id: string;
-  title: string;
-  start: Date;
-  end: Date;
-  color?: string;
-}
+import { CalendarEvent } from "../types";
 
 interface DayProps {
   date: Date;
@@ -21,64 +14,68 @@ interface DayProps {
 
 const MAX_VISIBLE_EVENTS = 2;
 
-export function Day({ date, isCurrentMonth, events, onClick }: Readonly<DayProps>) {
-  // Checks if the current date is between the start and end of the event
+export function Day({
+  date,
+  isCurrentMonth,
+  events,
+  onClick,
+}: Readonly<DayProps>) {
   const dayEvents = useMemo(() => {
     const dayStart = startOfDay(date);
-    
+
     return events.filter((event) => {
       const eventStart = startOfDay(event.start);
       const eventEnd = startOfDay(event.end);
-
-      return isWithinInterval(dayStart, { 
-        start: eventStart, 
-        end: eventEnd 
-      });
+      return isWithinInterval(dayStart, { start: eventStart, end: eventEnd });
     });
   }, [events, date]);
 
   const extraEventsCount = dayEvents.length - MAX_VISIBLE_EVENTS;
+  const today = isToday(date);
 
   return (
-    <button 
-      type="button" 
-      onClick={() => onClick(date)} 
+    <button
+      type="button"
+      onClick={() => onClick(date)}
       className={cn(
-        "group relative flex flex-col items-stretch h-32 p-1 transition-all outline-none", 
-        "border-r nth-[7n]:border-r-0", 
-        "border-b nth-last-[-n+7]:border-b-0", 
+        "group relative flex h-32 flex-col items-stretch p-1 transition-all outline-none",
+        "border-r nth-[7n]:border-r-0",
+        "border-b nth-last-[-n+7]:border-b-0",
         "hover:cursor-pointer",
-        isCurrentMonth ? "bg-background" : "bg-(--base-variant)"
+        isCurrentMonth ? "bg-background" : "bg-(--base-variant)",
       )}
     >
       {/* Day Number */}
-      <div className="flex justify-start mb-1">
-        <span className={cn(
-          "flex items-center justify-center w-7 h-7 text-sm font-medium rounded-full transition-colors", 
-          isCurrentMonth ? "text-(--primary-text)" : "text-(--secondary-text) opacity-30"
-        )}>
-          {format(date, 'd')}
+      <div className="mb-1 flex justify-start">
+        <span
+          className={cn(
+            "flex h-7 w-7 items-center justify-center rounded-full text-sm font-medium transition-colors",
+            // Highlight today's number with the accent colour
+            today && isCurrentMonth
+              ? "bg-(--accent-color) font-bold text-white"
+              : isCurrentMonth
+                ? "text-(--primary-text)"
+                : "text-(--secondary-text) opacity-30",
+          )}
+        >
+          {format(date, "d")}
         </span>
       </div>
 
       {/* Events List */}
-      <div className="flex flex-col gap-1 overflow-hidden text-left w-full">
-        {dayEvents.slice(0, MAX_VISIBLE_EVENTS).map((event) => {
-          
-          return (
-            <div
-              key={event.id}
-              className={cn(
-                "px-2 py-0.5 text-[10px] sm:text-xs border truncate w-full shadow-sm",
-                "rounded",
-                event.color,
-                !isCurrentMonth && "opacity-50"
-              )}
-            >
-              {event.title}
-            </div>
-          );
-        })}
+      <div className="flex w-full flex-col gap-1 overflow-hidden text-left">
+        {dayEvents.slice(0, MAX_VISIBLE_EVENTS).map((event) => (
+          <div
+            key={event.id}
+            className={cn(
+              "w-full truncate rounded border px-2 py-0.5 text-[10px] shadow-sm sm:text-xs",
+              event.color,
+              !isCurrentMonth && "opacity-50",
+            )}
+          >
+            {event.title}
+          </div>
+        ))}
 
         {extraEventsCount > 0 && (
           <p className="px-1 text-[10px] font-semibold text-(--secondary-text) opacity-60">
@@ -87,15 +84,10 @@ export function Day({ date, isCurrentMonth, events, onClick }: Readonly<DayProps
         )}
       </div>
 
-      {/* Visual Indicator for Current Day */}
-      {isToday(date) && isCurrentMonth && (
-        <div className="absolute inset-0 border-2 border-(--accent-color) pointer-events-none" />
+      {/* Today border indicator — kept as a secondary signal alongside the number highlight */}
+      {today && isCurrentMonth && (
+        <div className="pointer-events-none absolute inset-0 border-2 border-(--accent-color)" />
       )}
     </button>
   );
-}
-
-// Helper needed for the mapping check
-function isSameDay(d1: Date, d2: Date) {
-  return d1.getTime() === d2.getTime();
 }

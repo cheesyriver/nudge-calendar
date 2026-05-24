@@ -2,19 +2,20 @@
 
 import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import { format } from 'date-fns';
-import { Button } from "@/components/ui/button";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/components/ui/select";
+import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { ViewType } from './types';
 
-interface CalendarHeaderProps {
+interface CalendarTopProps {
   currentDate: Date;
-  view: string;
-  onViewChange: (view: string) => void;
+  view: ViewType;
+  onViewChange: (view: ViewType) => void;
   onPrev: () => void;
   onNext: () => void;
   onToday: () => void;
@@ -28,8 +29,8 @@ export function CalendarTop({
   onPrev,
   onNext,
   onToday,
-  onAddEvent
-}: Readonly<CalendarHeaderProps>) {
+  onAddEvent,
+}: Readonly<CalendarTopProps>) {
   return (
     <div className="flex items-center justify-between px-6 py-4 border-b bg-background">
       <div className="flex items-center gap-4">
@@ -40,7 +41,11 @@ export function CalendarTop({
           <Button variant="ghost" size="icon" onClick={onPrev}>
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" className="text-sm px-3 border-x rounded-none" onClick={onToday}>
+          <Button
+            variant="ghost"
+            className="text-sm px-3 border-x rounded-none"
+            onClick={onToday}
+          >
             Today
           </Button>
           <Button variant="ghost" size="icon" onClick={onNext}>
@@ -54,7 +59,7 @@ export function CalendarTop({
           <SelectTrigger className="w-30">
             <SelectValue placeholder="View" />
           </SelectTrigger>
-          <SelectContent position="popper" className='bg-(--base-color)'>
+          <SelectContent position="popper" className="bg-(--base-color)">
             <SelectItem value="day">Day</SelectItem>
             <SelectItem value="week">Week</SelectItem>
             <SelectItem value="month">Month</SelectItem>
