@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, BookOpen } from 'lucide-react';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import {
@@ -12,14 +12,16 @@ import {
 } from '@/components/ui/select';
 import { ViewType } from './types';
 
+// Interface name now matches the component name
 interface CalendarTopProps {
   currentDate: Date;
-  view: ViewType;
+  view: ViewType; // Was `string` — now type-safe
   onViewChange: (view: ViewType) => void;
   onPrev: () => void;
   onNext: () => void;
   onToday: () => void;
   onAddEvent: () => void;
+  onImportSchedule: () => void;
 }
 
 export function CalendarTop({
@@ -30,6 +32,7 @@ export function CalendarTop({
   onNext,
   onToday,
   onAddEvent,
+  onImportSchedule,
 }: Readonly<CalendarTopProps>) {
   return (
     <div className="flex items-center justify-between px-6 py-4 border-b bg-background">
@@ -65,6 +68,11 @@ export function CalendarTop({
             <SelectItem value="month">Month</SelectItem>
           </SelectContent>
         </Select>
+
+        <Button variant="outline" onClick={onImportSchedule} className="gap-2">
+          <BookOpen className="h-4 w-4" />
+          Import Schedule
+        </Button>
 
         <Button onClick={onAddEvent} className="gap-2">
           <Plus className="h-4 w-4" />

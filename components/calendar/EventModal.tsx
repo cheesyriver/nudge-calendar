@@ -1,7 +1,8 @@
-"use client";
+'use client';
 
-import { useState } from "react";
+import { useState } from 'react';
 
+// Accepts a Date object or an ISO string (e.g. after JSON.parse from localStorage)
 const formatToDateTimeLocal = (date: Date | string) => {
   const d = new Date(date);
   const pad = (n: number) => String(n).padStart(2, '0');
@@ -9,8 +10,8 @@ const formatToDateTimeLocal = (date: Date | string) => {
 };
 
 interface EventModalProps {
-  initialStart: Date;
-  initialEnd: Date;
+  initialStart: Date | string;
+  initialEnd: Date | string;
   onClose: () => void;
   onSave: (title: string, start: Date, end: Date) => void;
 }
@@ -21,37 +22,35 @@ export function EventModal({
   onClose,
   onSave,
 }: Readonly<EventModalProps>) {
-  const [title, setTitle] = useState("");
+  const [title, setTitle] = useState('');
   const [start, setStart] = useState(formatToDateTimeLocal(initialStart));
   const [end, setEnd] = useState(formatToDateTimeLocal(initialEnd));
 
-  const isEndBeforeStart = Boolean(
-    start && end && new Date(end) <= new Date(start),
-  );
+  const isEndBeforeStart = Boolean(start && end && new Date(end) <= new Date(start));
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!title.trim() || isEndBeforeStart) return;
     onSave(title, new Date(start), new Date(end));
   };
 
   return (
-    <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/40 p-4 backdrop-blur-[2px]">
+    <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/40 backdrop-blur-[2px]">
       {/* Clickable backdrop for closing */}
       <button
         type="button"
         aria-label="Close modal"
-        className="absolute inset-0 h-full w-full cursor-default"
+        className="absolute inset-0 w-full h-full cursor-default"
         onClick={onClose}
       />
 
-      <div className="bg-background animate-in fade-in zoom-in relative w-full max-w-md rounded-2xl border border-(--primary-text) p-6 shadow-2xl duration-150">
+      <div className="relative w-full max-w-md bg-background border border-(--primary-text) rounded-2xl shadow-2xl p-6 animate-in fade-in zoom-in duration-150">
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Title Input */}
           <div className="flex flex-col gap-1.5">
             <label
               htmlFor="event-title"
-              className="text-muted-foreground ml-1 text-[10px] font-bold tracking-wider uppercase"
+              className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground ml-1"
             >
               Event Title
             </label>
@@ -59,7 +58,7 @@ export function EventModal({
               id="event-title"
               autoFocus
               required
-              className="w-full rounded-xl border border-transparent bg-(--opaque-color) p-3 text-(--primary-text) transition-all outline-none focus:border-(--accent-color)"
+              className="w-full p-3 bg-(--opaque-color) rounded-xl border border-transparent focus:border-(--accent-color) outline-none transition-all text-(--primary-text)"
               placeholder="e.g. Chemistry Revision"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
@@ -71,7 +70,7 @@ export function EventModal({
             <div className="flex flex-col gap-1.5">
               <label
                 htmlFor="start-time"
-                className="text-muted-foreground ml-1 text-[10px] font-bold tracking-wider uppercase"
+                className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground ml-1"
               >
                 Start Time
               </label>
@@ -79,7 +78,7 @@ export function EventModal({
                 id="start-time"
                 type="datetime-local"
                 required
-                className="w-full cursor-pointer rounded-lg border-none bg-(--opaque-color) p-2 text-sm text-(--primary-text)"
+                className="w-full p-2 bg-(--opaque-color) rounded-lg border-none text-sm text-(--primary-text) cursor-pointer"
                 value={start}
                 onChange={(e) => setStart(e.target.value)}
               />
@@ -87,7 +86,7 @@ export function EventModal({
             <div className="flex flex-col gap-1.5">
               <label
                 htmlFor="end-time"
-                className="text-muted-foreground ml-1 text-[10px] font-bold tracking-wider uppercase"
+                className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground ml-1"
               >
                 End Time
               </label>
@@ -95,7 +94,7 @@ export function EventModal({
                 id="end-time"
                 type="datetime-local"
                 required
-                className="w-full cursor-pointer rounded-lg border-none bg-(--opaque-color) p-2 text-sm text-(--primary-text)"
+                className="w-full p-2 bg-(--opaque-color) rounded-lg border-none text-sm text-(--primary-text) cursor-pointer"
                 value={end}
                 onChange={(e) => setEnd(e.target.value)}
               />
@@ -104,7 +103,7 @@ export function EventModal({
 
           {/* End-before-start validation message */}
           {isEndBeforeStart && (
-            <p className="-mt-2 text-xs font-medium text-red-500">
+            <p className="text-xs text-red-500 font-medium -mt-2">
               End time must be after start time.
             </p>
           )}
@@ -114,14 +113,14 @@ export function EventModal({
             <button
               type="button"
               onClick={onClose}
-              className="rounded-xl px-5 py-2 text-sm font-semibold text-(--secondary-text) transition-colors hover:bg-(--opaque-color)"
+              className="px-5 py-2 text-sm font-semibold hover:bg-(--opaque-color) rounded-xl transition-colors text-(--secondary-text)"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={!title.trim() || isEndBeforeStart}
-              className="rounded-xl bg-(--accent-color) px-6 py-2 text-sm font-bold text-white shadow-(--accent-color)/20 shadow-lg transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+              className="px-6 py-2 bg-(--accent-color) text-white text-sm font-bold rounded-xl shadow-lg shadow-(--accent-color)/20 hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Save Event
             </button>

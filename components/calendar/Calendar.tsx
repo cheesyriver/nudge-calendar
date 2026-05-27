@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { addMonths, addWeeks, addDays, startOfToday, addHours } from 'date-fns';
 import { CalendarTop } from './CalendarTop';
 import { MonthView } from './month view/MonthView';
@@ -8,8 +8,38 @@ import { WeekView } from './week view/WeekView';
 import { DayView } from './day view/DayView';
 import { EventModal } from './EventModal';
 import { CalendarEvent, ViewType } from './types';
+import { generateSampleSchedule } from './SampleSchedule';
 
-const DEFAULT_EVENT_COLOR = 'bg-(--accent-color) border-none text-white';
+const STORAGE_KEY = 'calendar-events';
+
+const EVENT_COLORS = [
+  'bg-(--accent-color) border-none text-white',
+  'bg-emerald-500 border-none text-white',
+] as const;
+
+const SAMPLE_EVENTS: CalendarEvent[] = [
+  {
+    id: '1',
+    title: 'Chemistry Study',
+    start: new Date(2026, 2, 26, 8, 0),
+    end: new Date(2026, 2, 26, 10, 30),
+    color: 'bg-(--accent-color) border-none',
+  },
+  {
+    id: '2',
+    title: 'Final Project Hackathon',
+    start: new Date(2026, 2, 26, 12, 30),
+    end: new Date(2026, 2, 26, 15, 30),
+    color: 'bg-emerald-500 border-none',
+  },
+  {
+    id: '3',
+    title: 'Final Project Hackathon',
+    start: new Date(2026, 2, 26, 18, 30),
+    end: new Date(2026, 2, 26, 23, 59),
+    color: 'bg-(--accent-color) border-none',
+  },
+];
 
 export function Calendar() {
   const [view, setView] = useState<ViewType>('month');
@@ -17,29 +47,36 @@ export function Calendar() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<{ start: Date; end: Date } | null>(null);
 
-  const [events, setEvents] = useState<CalendarEvent[]>([
-    {
-      id: '1',
-      title: 'Chemistry Study',
-      start: new Date(2026, 4, 29, 8, 0),
-      end: new Date(2026, 4, 29, 10, 30),
-      color: 'bg-(--accent-color) border-none',
-    },
-    {
-      id: '2',
-      title: 'Final Project Hackathon',
-      start: new Date(2026, 4, 26, 12, 30),
-      end: new Date(2026, 4, 26, 15, 30),
-      color: 'bg-emerald-500 border-none',
-    },
-    {
-      id: '3',
-      title: "Hailee's birthday party",
-      start: new Date(2026, 4, 13, 18, 30),
-      end: new Date(2026, 4, 13, 23, 59),
-      color: 'bg-(--accent-color) border-none',
-    },
-  ]);
+  const [events, setEvents] = useState<CalendarEvent[]>(SAMPLE_EVENTS);
+
+  const isFirstRender = useRef(true);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        setEvents(
+          parsed.map((e: CalendarEvent) => ({
+            ...e,
+            start: new Date(e.start),
+            end: new Date(e.end),
+          })),
+        );
+      }
+    } catch {
+      // localStorage unavailable or corrupted — keep sample events.
+    }
+  }, []);
+
+  // Persist whenever events change, skipping the initial SAMPLE_EVENTS render.
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(events));
+  }, [events]);
 
   const handlePrev = useCallback(() => {
     setCurrentDate((prev) => {
@@ -73,13 +110,20 @@ export function Calendar() {
         title,
         start,
         end,
-        color: DEFAULT_EVENT_COLOR,
+        // Rotate through EVENT_COLORS based on how many events exist
+        color: EVENT_COLORS[prev.length % EVENT_COLORS.length],
       },
     ]);
     setIsModalOpen(false);
   }, []);
 
   const handleCloseModal = useCallback(() => setIsModalOpen(false), []);
+
+  const handleImportSchedule = useCallback(() => {
+    const schedule = generateSampleSchedule();
+    setEvents(schedule);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(schedule));
+  }, []);
 
   return (
     <div className="flex flex-col h-full w-full max-w-4xl border border-(--primary-text) rounded-xl overflow-hidden bg-background shadow-sm">
@@ -91,6 +135,7 @@ export function Calendar() {
         onNext={handleNext}
         onToday={handleToday}
         onAddEvent={handleOpenAddModal}
+        onImportSchedule={handleImportSchedule}
       />
 
       <div className="flex-1 min-h-0">
@@ -119,8 +164,6 @@ export function Calendar() {
         )}
       </div>
 
-      {/* Modal sits at the root level — outside the scrollable content div — so
-          fixed positioning always works regardless of any parent overflow. */}
       {isModalOpen && selectedSlot && (
         <EventModal
           initialStart={selectedSlot.start}

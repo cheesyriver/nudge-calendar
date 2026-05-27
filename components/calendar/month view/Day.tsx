@@ -23,11 +23,15 @@ export function Day({
   const dayEvents = useMemo(() => {
     const dayStart = startOfDay(date);
 
-    return events.filter((event) => {
-      const eventStart = startOfDay(event.start);
-      const eventEnd = startOfDay(event.end);
-      return isWithinInterval(dayStart, { start: eventStart, end: eventEnd });
-    });
+    return events
+      .filter((event) => {
+        const eventStart = startOfDay(event.start);
+        const eventEnd = startOfDay(event.end);
+        return isWithinInterval(dayStart, { start: eventStart, end: eventEnd });
+      })
+      .sort(
+        (a, b) => new Date(a.start).getTime() - new Date(b.start).getTime(),
+      );
   }, [events, date]);
 
   const extraEventsCount = dayEvents.length - MAX_VISIBLE_EVENTS;
@@ -55,7 +59,7 @@ export function Day({
               ? "bg-(--accent-color) font-bold text-white"
               : isCurrentMonth
                 ? "text-(--primary-text)"
-                : "text-(--secondary-text) opacity-30",
+                : "text-[--secondary-text] opacity-30",
           )}
         >
           {format(date, "d")}
