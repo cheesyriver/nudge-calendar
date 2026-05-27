@@ -45,7 +45,13 @@ export function WeekView({ currentDate, events, onTimeClick }: Readonly<WeekView
   };
 
   return (
+    // Outer shell — clips vertical overflow only
     <div className="flex flex-col h-170 bg-background overflow-hidden">
+      {/* Horizontal scroll container — on mobile, header + grid scroll together */}
+      <div className="flex flex-col flex-1 min-h-0 overflow-x-auto">
+        {/* Minimum width keeps each column usable on small screens */}
+        <div className="flex flex-col flex-1 min-w-140">
+
       {/* Header */}
       <div className="flex flex-none border-b border-(--border-color)">
         <div className="w-16 shrink-0" />
@@ -141,6 +147,9 @@ export function WeekView({ currentDate, events, onTimeClick }: Readonly<WeekView
           </div>
         </div>
       </ScrollArea>
+
+        </div>{/* end min-w inner */}
+      </div>{/* end overflow-x-auto */}
     </div>
   );
 }

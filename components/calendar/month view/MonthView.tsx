@@ -17,8 +17,15 @@ interface MonthViewProps {
   onDateClick: (date: Date) => void;
 }
 
-// Constant outside the component — created once, never re-allocated on re-renders
-const WEEK_DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const;
+const WEEK_DAYS = [
+  { short: 'S', long: 'Sun' },
+  { short: 'M', long: 'Mon' },
+  { short: 'T', long: 'Tue' },
+  { short: 'W', long: 'Wed' },
+  { short: 'T', long: 'Thu' },
+  { short: 'F', long: 'Fri' },
+  { short: 'S', long: 'Sat' },
+] as const;
 
 export function MonthView({ currentDate, events, onDateClick }: Readonly<MonthViewProps>) {
   const monthStart = startOfMonth(currentDate);
@@ -34,10 +41,12 @@ export function MonthView({ currentDate, events, onDateClick }: Readonly<MonthVi
       <div className="grid grid-cols-7 border-b bg-muted/20">
         {WEEK_DAYS.map((day) => (
           <div
-            key={day}
-            className="py-3 text-center text-xs font-bold text-muted-foreground uppercase tracking-widest border-r last:border-r-0"
+            key={day.long}
+            className="py-2 sm:py-3 text-center text-xs font-bold text-muted-foreground uppercase tracking-widest border-r last:border-r-0"
           >
-            {day}
+            {/* Single letter on mobile, 3-letter abbreviation on desktop */}
+            <span className="sm:hidden">{day.short}</span>
+            <span className="hidden sm:inline">{day.long}</span>
           </div>
         ))}
       </div>

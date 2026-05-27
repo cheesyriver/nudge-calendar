@@ -12,10 +12,9 @@ import {
 } from '@/components/ui/select';
 import { ViewType } from './types';
 
-// Interface name now matches the component name
 interface CalendarTopProps {
   currentDate: Date;
-  view: ViewType; // Was `string` — now type-safe
+  view: ViewType;
   onViewChange: (view: ViewType) => void;
   onPrev: () => void;
   onNext: () => void;
@@ -35,10 +34,10 @@ export function CalendarTop({
   onImportSchedule,
 }: Readonly<CalendarTopProps>) {
   return (
-    <div className="flex items-center justify-between px-6 py-4 border-b bg-background">
-      <div className="flex items-center gap-4">
-        <h1 className="text-xl font-semibold min-w-50 select-none">
-          {format(currentDate, 'MMMM yyyy')}
+    <div className="flex flex-wrap items-center justify-between gap-y-2 px-4 sm:px-6 py-3 sm:py-4 border-b bg-background">
+      <div className="flex items-center gap-2 sm:gap-4">
+        <h1 className="text-base sm:text-xl font-semibold min-w-0 select-none">
+          {format(currentDate, 'MMM yyyy')}
         </h1>
         <div className="flex items-center border rounded-md">
           <Button variant="ghost" size="icon" onClick={onPrev}>
@@ -57,9 +56,9 @@ export function CalendarTop({
         </div>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3">
         <Select value={view} onValueChange={onViewChange}>
-          <SelectTrigger className="w-30">
+          <SelectTrigger className="w-24 sm:w-30">
             <SelectValue placeholder="View" />
           </SelectTrigger>
           <SelectContent position="popper" className="bg-(--base-color)">
@@ -69,14 +68,14 @@ export function CalendarTop({
           </SelectContent>
         </Select>
 
-        <Button variant="outline" onClick={onImportSchedule} className="gap-2">
-          <BookOpen className="h-4 w-4" />
-          Import Schedule
+        <Button variant="outline" onClick={onImportSchedule} className="gap-1.5">
+          <BookOpen className="h-4 w-4 shrink-0" />
+          <span className="hidden sm:inline">Import Schedule</span>
         </Button>
 
-        <Button onClick={onAddEvent} className="gap-2">
-          <Plus className="h-4 w-4" />
-          Add Event
+        <Button onClick={onAddEvent} className="gap-1.5">
+          <Plus className="h-4 w-4 shrink-0" />
+          <span className="hidden sm:inline">Add Event</span>
         </Button>
       </div>
     </div>

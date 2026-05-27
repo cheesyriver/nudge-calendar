@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useMemo } from "react";
-import { isToday, startOfDay, format, isWithinInterval } from "date-fns";
-import { cn } from "@/lib/utils";
-import { CalendarEvent } from "../types";
+import { useMemo } from 'react';
+import { isToday, startOfDay, format, isWithinInterval } from 'date-fns';
+import { cn } from '@/lib/utils';
+import { CalendarEvent } from '../types';
 
 interface DayProps {
   date: Date;
@@ -14,12 +14,7 @@ interface DayProps {
 
 const MAX_VISIBLE_EVENTS = 2;
 
-export function Day({
-  date,
-  isCurrentMonth,
-  events,
-  onClick,
-}: Readonly<DayProps>) {
+export function Day({ date, isCurrentMonth, events, onClick }: Readonly<DayProps>) {
   const dayEvents = useMemo(() => {
     const dayStart = startOfDay(date);
 
@@ -29,9 +24,7 @@ export function Day({
         const eventEnd = startOfDay(event.end);
         return isWithinInterval(dayStart, { start: eventStart, end: eventEnd });
       })
-      .sort(
-        (a, b) => new Date(a.start).getTime() - new Date(b.start).getTime(),
-      );
+      .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
   }, [events, date]);
 
   const extraEventsCount = dayEvents.length - MAX_VISIBLE_EVENTS;
@@ -42,39 +35,41 @@ export function Day({
       type="button"
       onClick={() => onClick(date)}
       className={cn(
-        "group relative flex h-32 flex-col items-stretch p-1 transition-all outline-none",
-        "border-r nth-[7n]:border-r-0",
-        "border-b nth-last-[-n+7]:border-b-0",
-        "hover:cursor-pointer",
-        isCurrentMonth ? "bg-background" : "bg-(--base-variant)",
+        'group relative flex flex-col items-stretch h-20 sm:h-32 p-1 transition-all outline-none',
+        'border-r nth-[7n]:border-r-0',
+        'border-b nth-last-[-n+7]:border-b-0',
+        'hover:cursor-pointer',
+        isCurrentMonth ? 'bg-background' : 'bg-(--base-variant)',
       )}
     >
       {/* Day Number */}
-      <div className="mb-1 flex justify-start">
+      <div className="flex justify-start mb-1">
         <span
           className={cn(
-            "flex h-7 w-7 items-center justify-center rounded-full text-sm font-medium transition-colors",
+            'flex items-center justify-center w-7 h-7 text-sm font-medium rounded-full transition-colors',
             // Highlight today's number with the accent colour
             today && isCurrentMonth
-              ? "bg-(--accent-color) font-bold text-white"
+              ? 'bg-(--accent-color) text-white font-bold'
               : isCurrentMonth
-                ? "text-(--primary-text)"
-                : "text-[--secondary-text] opacity-30",
+                ? 'text-(--primary-text)'
+                : 'text-(--secondary-text) opacity-30',
           )}
         >
-          {format(date, "d")}
+          {format(date, 'd')}
         </span>
       </div>
 
       {/* Events List */}
-      <div className="flex w-full flex-col gap-1 overflow-hidden text-left">
-        {dayEvents.slice(0, MAX_VISIBLE_EVENTS).map((event) => (
+      <div className="flex flex-col gap-1 overflow-hidden text-left w-full">
+        {dayEvents.slice(0, MAX_VISIBLE_EVENTS).map((event, index) => (
           <div
             key={event.id}
             className={cn(
-              "w-full truncate rounded border px-2 py-0.5 text-[10px] shadow-sm sm:text-xs",
+              'px-2 py-0.5 text-[10px] sm:text-xs border truncate w-full shadow-sm rounded',
+              // Only show 1 event on mobile — second chip hidden to avoid overflow
+              index >= 1 && 'hidden sm:block',
               event.color,
-              !isCurrentMonth && "opacity-50",
+              !isCurrentMonth && 'opacity-50',
             )}
           >
             {event.title}
@@ -90,7 +85,7 @@ export function Day({
 
       {/* Today border indicator — kept as a secondary signal alongside the number highlight */}
       {today && isCurrentMonth && (
-        <div className="pointer-events-none absolute inset-0 border-2 border-(--accent-color)" />
+        <div className="absolute inset-0 border-2 border-(--accent-color) pointer-events-none" />
       )}
     </button>
   );

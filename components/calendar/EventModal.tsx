@@ -26,6 +26,7 @@ export function EventModal({
   const [start, setStart] = useState(formatToDateTimeLocal(initialStart));
   const [end, setEnd] = useState(formatToDateTimeLocal(initialEnd));
 
+  // Derived validation state — no extra useState needed
   const isEndBeforeStart = Boolean(start && end && new Date(end) <= new Date(start));
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -66,7 +67,7 @@ export function EventModal({
           </div>
 
           {/* Date/Time Grid */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="flex flex-col gap-1.5">
               <label
                 htmlFor="start-time"

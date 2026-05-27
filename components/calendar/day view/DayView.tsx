@@ -48,7 +48,7 @@ export function DayView({ currentDate, events, onTimeClick }: Readonly<DayViewPr
   return (
     <div className="flex flex-col h-170 bg-background overflow-hidden border rounded-xl border-(--border-color)">
       {/* Header */}
-      <div className="flex flex-none border-b p-4 items-center justify-between border-(--border-color)">
+      <div className="flex flex-none border-b p-3 sm:p-4 items-center justify-between border-(--border-color)">
         <div className="flex flex-col text-left">
           <h2 className="text-lg font-bold text-(--primary-text)">
             {format(currentDate, 'EEEE')}
@@ -69,7 +69,7 @@ export function DayView({ currentDate, events, onTimeClick }: Readonly<DayViewPr
       <ScrollArea className="flex-1 w-full h-full overflow-y-auto">
         <div className="flex items-start">
           {/* Hours Column */}
-          <div className="w-20 shrink-0 flex flex-col">
+          <div className="w-14 sm:w-20 shrink-0 flex flex-col">
             {HOURS.map((hour) => (
               <div
                 key={hour}
@@ -112,7 +112,7 @@ export function DayView({ currentDate, events, onTimeClick }: Readonly<DayViewPr
                 <div
                   key={event.id}
                   className={cn(
-                    'absolute left-4 right-10 rounded-lg p-4 border shadow-md transition-all',
+                    'absolute left-1 right-1 sm:left-4 sm:right-10 rounded-lg p-2 sm:p-4 border shadow-md transition-all',
                     event.color || 'bg-(--accent-color) text-white border-white/10',
                   )}
                   style={{ top, height: Math.max(height, 20), zIndex: 10 }}
