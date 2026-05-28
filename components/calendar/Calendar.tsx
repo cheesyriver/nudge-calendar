@@ -9,6 +9,8 @@ import { DayView } from './day view/DayView';
 import { EventModal } from './EventModal';
 import { CalendarEvent, ViewType } from './types';
 import { generateSampleSchedule } from './SampleSchedule';
+import { AssignmentModal, AssignmentDetails } from './AssignmentModal';
+import { GraduationCap } from 'lucide-react';
 
 const STORAGE_KEY = 'calendar-events';
 
@@ -46,6 +48,7 @@ export function Calendar() {
   const [currentDate, setCurrentDate] = useState(startOfToday());
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<{ start: Date; end: Date } | null>(null);
+  const [isAssignmentModalOpen, setIsAssignmentModalOpen] = useState(false);
 
   const [events, setEvents] = useState<CalendarEvent[]>(SAMPLE_EVENTS);
 
@@ -110,7 +113,6 @@ export function Calendar() {
         title,
         start,
         end,
-        // Rotate through EVENT_COLORS based on how many events exist
         color: EVENT_COLORS[prev.length % EVENT_COLORS.length],
       },
     ]);
@@ -119,14 +121,58 @@ export function Calendar() {
 
   const handleCloseModal = useCallback(() => setIsModalOpen(false), []);
 
+  const handleScheduleAssignment = useCallback(async (details: AssignmentDetails) => {
+    const res = await fetch('/api/schedule', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        assignment: details,
+        existingEvents: events.map((e) => ({
+          title: e.title,
+          start: new Date(e.start).toISOString(),
+          end: new Date(e.end).toISOString(),
+        })),
+      }),
+    });
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.error ?? `Request failed with status ${res.status}`);
+    }
+
+    const { studySlots } = await res.json();
+
+    const newEvents: CalendarEvent[] = studySlots.map((slot: { title: string; start: string; end: string }) => ({
+      id: crypto.randomUUID(),
+      title: slot.title,
+      start: new Date(slot.start),
+      end: new Date(slot.end),
+      color: 'bg-sky-500 border-none text-white',
+    }));
+
+    setEvents((prev) => [...prev, ...newEvents]);
+    setIsAssignmentModalOpen(false);
+
+    if (newEvents.length > 0) {
+      setCurrentDate(newEvents[0].start);
+    }
+  }, [events]);
+
   const handleImportSchedule = useCallback(() => {
-    const schedule = generateSampleSchedule();
-    setEvents(schedule);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(schedule));
-  }, []);
+  const schedule = generateSampleSchedule();
+  setEvents((prev) => {
+    const scheduleIds = new Set(schedule.map((e) => e.id));
+    // Keep any events not in the sample schedule (e.g. AI-added study sessions)
+    const kept = prev.filter((e) => !scheduleIds.has(e.id));
+    const merged = [...kept, ...schedule];
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+    return merged;
+  });
+}, []);
 
   return (
-    <div className="flex flex-col h-full w-full max-w-4xl border border-(--primary-text) rounded-xl overflow-hidden bg-background shadow-sm">
+    <div className="w-full h-full px-3 sm:px-0">
+    <div className="flex flex-col h-full w-full max-w-4xl mx-auto border border-(--primary-text) rounded-xl overflow-hidden bg-background shadow-sm">
       <CalendarTop
         currentDate={currentDate}
         view={view}
@@ -172,6 +218,23 @@ export function Calendar() {
           onSave={handleSaveEvent}
         />
       )}
+
+      {isAssignmentModalOpen && (
+        <AssignmentModal
+          onClose={() => setIsAssignmentModalOpen(false)}
+          onSchedule={handleScheduleAssignment}
+        />
+      )}
+    </div>
+
+    <button
+      type="button"
+      onClick={() => setIsAssignmentModalOpen(true)}
+      className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 bg-(--accent-color) text-white rounded-full shadow-lg hover:opacity-90 active:scale-95 transition-all font-semibold text-sm select-none"
+    >
+      <GraduationCap className="h-5 w-5 shrink-0" />
+      <span className="hidden sm:inline">Add Assignment</span>
+    </button>
     </div>
   );
 }

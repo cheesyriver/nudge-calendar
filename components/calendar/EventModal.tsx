@@ -36,7 +36,7 @@ export function EventModal({
   };
 
   return (
-    <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/40 backdrop-blur-[2px]">
+    <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/10 backdrop-blur-[10px]">
       {/* Clickable backdrop for closing */}
       <button
         type="button"
