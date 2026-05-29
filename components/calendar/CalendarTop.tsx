@@ -34,31 +34,31 @@ export function CalendarTop({
   onImportSchedule,
 }: Readonly<CalendarTopProps>) {
   return (
-    <div className="flex flex-wrap items-center justify-between gap-y-2 gap-x-3 px-4 sm:px-6 py-3 sm:py-4 border-b bg-background">
+    <div className="flex flex-wrap items-center justify-between gap-y-2 gap-x-3 px-2 sm:px-6 py-2 sm:py-4 border-b bg-background">
       <div className="flex items-center gap-2 sm:gap-4">
-        <h1 className="text-base sm:text-xl font-semibold min-w-0 select-none">
+        <h1 className="text-sm sm:text-xl font-semibold min-w-0 select-none">
           {format(currentDate, 'MMM yyyy')}
         </h1>
         <div className="flex items-center border rounded-md">
-          <Button variant="ghost" size="icon" onClick={onPrev}>
-            <ChevronLeft className="h-4 w-4" />
+          <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-9 sm:w-9" onClick={onPrev}>
+            <ChevronLeft className="h-3 w-3 sm:h-4 sm:w-4" />
           </Button>
           <Button
             variant="ghost"
-            className="text-sm px-3 border-x rounded-none"
+            className="text-xs sm:text-sm px-2 sm:px-3 h-7 sm:h-9 border-x rounded-none"
             onClick={onToday}
           >
             Today
           </Button>
-          <Button variant="ghost" size="icon" onClick={onNext}>
-            <ChevronRight className="h-4 w-4" />
+          <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-9 sm:w-9" onClick={onNext}>
+            <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />
           </Button>
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 sm:gap-3">
         <Select value={view} onValueChange={onViewChange}>
-          <SelectTrigger className="w-24 sm:w-30">
+          <SelectTrigger className="w-20 sm:w-30 h-7 sm:h-9 text-xs sm:text-sm">
             <SelectValue placeholder="View" />
           </SelectTrigger>
           <SelectContent position="popper" className="bg-(--base-color)">
@@ -68,13 +68,13 @@ export function CalendarTop({
           </SelectContent>
         </Select>
 
-        <Button variant="outline" onClick={onImportSchedule} className="gap-1.5">
-          <BookOpen className="h-4 w-4 shrink-0" />
+        <Button variant="outline" onClick={onImportSchedule} className="gap-1 h-7 sm:h-9 px-2 sm:px-4">
+          <BookOpen className="h-2 w-2 sm:h-4 sm:w-4 shrink-0" />
           <span className="hidden sm:inline">Import Schedule</span>
         </Button>
 
-        <Button onClick={onAddEvent} className="gap-1.5">
-          <Plus className="h-4 w-4 shrink-0" />
+        <Button onClick={onAddEvent} className="gap-1 h-7 sm:h-9 px-1 sm:px-4">
+          <Plus className="h-2 w-2 sm:h-4 sm:w-4 shrink-0" />
           <span className="hidden sm:inline">Add Event</span>
         </Button>
       </div>
