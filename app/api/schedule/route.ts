@@ -45,43 +45,13 @@ export async function POST(req: NextRequest) {
 
   const today = new Date().toISOString().split('T')[0];
 
-  const prompt = `
-You are an AI study scheduler for a university student.
+  const prompt = `Study scheduler. Today: ${today}.
+    BLOCKED slots (15-min buffer required around each):
+    ${scheduleSummary || '(none)'}
+    Task: "${assignment.title}" (${assignment.type}), due ${assignment.dueDate}, confidence ${assignment.confidence}/10, weight ${assignment.weightage}%${assignment.notes ? `, notes: ${assignment.notes}` : ''}.
 
-Today's date is ${today}.
-
-The student's existing schedule is:
-${scheduleSummary || '  (no existing events)'}
-
-They have an upcoming ${assignment.type}:
-  - Title: "${assignment.title}"
-  - Due date: ${assignment.dueDate}
-  - Confidence: ${assignment.confidence}/10  (1 = knows nothing, 10 = completely confident)
-  - Grade weightage: ${assignment.weightage}%
-  ${assignment.notes ? `- Notes: ${assignment.notes}` : ''}
-
-Your task: schedule focused study sessions leading up to the due date.
-
-Rules:
-1. Sessions must be 1–2 hours long.
-2. Only schedule between 08:00 and 22:00.
-3. Do NOT overlap any existing event, leave at least 15 min gap (VERY IMPORTANT).
-4. Lower confidence and higher weightage = more sessions and longer sessions.
-5. Spread sessions across multiple days; don't stack more than 2 sessions on one day.
-6. Do NOT schedule back-to-back sessions.
-7. If there is a big gap in the schedule, schedule a study session in that gap INSTEAD of between two events.
-8. Do not schedule anything on or after the due date.
-9. Start scheduling from tomorrow at the earliest.
-
-Return ONLY a valid JSON array — no markdown, no explanation, nothing else:
-[
-  {
-    "title": "Study: ${assignment.title}",
-    "start": "YYYY-MM-DDTHH:mm:00",
-    "end": "YYYY-MM-DDTHH:mm:00"
-  }
-]
-`.trim();
+    Rules: (IMPORTANT) DO NOT overlap with existing events, LEAVE 15 MINUTE GAP BETWEEN ANY EVENT AND THE NEW STUDY SESSION, 1-2h sessions, plan times between 08:00-22:00 ONLY, MAX 2 sessions/day, spread across days, lower confidence+higher weight=more sessions, nothing on or after due date, start planning from tomorrow.
+    Output ONLY JSON, no markdown: [{"title":"Study: ${assignment.title}","start":"YYYY-MM-DDTHH:mm:00","end":"YYYY-MM-DDTHH:mm:00"}]`.trim();
 
   let geminiRes: Response;
   try {

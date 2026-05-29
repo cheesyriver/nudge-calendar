@@ -65,7 +65,7 @@ export function Day({ date, isCurrentMonth, events, onClick }: Readonly<DayProps
           <div
             key={event.id}
             className={cn(
-              'px-2 py-0.5 text-[10px] sm:text-xs border truncate w-full shadow-sm rounded',
+              'px-2 py-0.5 text-[10px] sm:text-xs border truncate w-full shadow-sm rounded min-h-4.5',
               // Only show 1 event on mobile — second chip hidden to avoid overflow
               index >= 1 && 'hidden sm:block',
               event.color,
@@ -77,7 +77,7 @@ export function Day({ date, isCurrentMonth, events, onClick }: Readonly<DayProps
         ))}
 
         {extraEventsCount > 0 && (
-          <p className="px-1 text-[10px] font-semibold text-(--secondary-text) opacity-60">
+          <p className="px-1 text-[10px] sm:text-xs font-semibold text-(--secondary-text) opacity-60 whitespace-nowrap leading-none">
             + {extraEventsCount} more
           </p>
         )}

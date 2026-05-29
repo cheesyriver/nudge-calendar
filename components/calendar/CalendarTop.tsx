@@ -34,7 +34,7 @@ export function CalendarTop({
   onImportSchedule,
 }: Readonly<CalendarTopProps>) {
   return (
-    <div className="flex flex-wrap items-center justify-between gap-y-2 px-4 sm:px-6 py-3 sm:py-4 border-b bg-background">
+    <div className="flex flex-wrap items-center justify-between gap-y-2 gap-x-3 px-4 sm:px-6 py-3 sm:py-4 border-b bg-background">
       <div className="flex items-center gap-2 sm:gap-4">
         <h1 className="text-base sm:text-xl font-semibold min-w-0 select-none">
           {format(currentDate, 'MMM yyyy')}
@@ -56,7 +56,7 @@ export function CalendarTop({
         </div>
       </div>
 
-      <div className="flex items-center gap-2 sm:gap-3">
+      <div className="flex items-center gap-2">
         <Select value={view} onValueChange={onViewChange}>
           <SelectTrigger className="w-24 sm:w-30">
             <SelectValue placeholder="View" />
