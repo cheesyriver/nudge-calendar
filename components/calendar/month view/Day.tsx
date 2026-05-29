@@ -77,7 +77,7 @@ export function Day({ date, isCurrentMonth, events, onClick }: Readonly<DayProps
         ))}
 
         {extraEventsCount > 0 && (
-          <p className="px-1 text-[10px] sm:text-xs font-semibold text-(--secondary-text) opacity-60 whitespace-nowrap leading-none">
+          <p className="px-1 text-[7px] sm:text-xs font-semibold text-(--secondary-text) opacity-60 whitespace-nowrap leading-none">
             + {extraEventsCount} more
           </p>
         )}
