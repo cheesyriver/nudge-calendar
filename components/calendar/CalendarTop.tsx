@@ -34,7 +34,7 @@ export function CalendarTop({
   onImportSchedule,
 }: Readonly<CalendarTopProps>) {
   return (
-    <div className="flex flex-wrap items-center sm:justify-between gap-y-2 gap-x-3 px-2 sm:px-6 py-2 sm:py-4 border-b bg-background">
+    <div className="flex flex-wrap items-center justify-between gap-y-2 gap-x-3 px-2 sm:px-6 py-2 sm:py-4 border-b bg-background">
       <div className="flex items-center gap-2 sm:gap-4">
         <h1 className="text-xs sm:text-xl font-semibold min-w-0 select-none">
           {format(currentDate, 'MMM yyyy')}
