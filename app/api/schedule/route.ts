@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
     ${scheduleSummary || '(none)'}
     Task: "${assignment.title}" (${assignment.type}), due ${assignment.dueDate}, confidence ${assignment.confidence}/10, weight ${assignment.weightage}%${assignment.notes ? `, notes: ${assignment.notes}` : ''}.
 
-    Rules: (IMPORTANT) DO NOT overlap with existing events, LEAVE 15 MINUTE GAP BETWEEN ANY EVENT AND THE NEW STUDY SESSION, 1-2h sessions, plan times between 08:00-22:00 ONLY, MAX 2 sessions/day, spread across days, lower confidence+higher weight=more sessions, nothing on or after due date, start planning from tomorrow.
+    Rules: (IMPORTANT) DO NOT overlap with existing events, LEAVE 15 MINUTE GAP BETWEEN ANY EVENT AND THE NEW STUDY SESSION, 1-2h sessions, plan times between 08:00-22:00 ONLY, MAX 2 sessions/day, spread across days, lower confidence AND higher weight means plan MORE sessions (max 2 in a day), nothing on or after due date, start planning from tomorrow.
     Output ONLY JSON, no markdown: [{"title":"Study: ${assignment.title}","start":"YYYY-MM-DDTHH:mm:00","end":"YYYY-MM-DDTHH:mm:00"}]`.trim();
 
   let geminiRes: Response;
@@ -91,7 +91,6 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Strip markdown code fences if Gemini wraps the JSON anyway
   const cleaned = rawText.replace(/```(?:json)?/gi, '').replace(/```/g, '').trim();
 
   const jsonMatch = cleaned.match(/\[[\s\S]*\]/);
@@ -102,13 +101,73 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  try {
-    const studySlots = JSON.parse(jsonMatch[0]);
-    return NextResponse.json({ studySlots });
-  } catch {
-    return NextResponse.json(
-      { error: 'AI response contained invalid JSON.', raw: rawText },
-      { status: 500 },
+  const GAP_MS = 15 * 60 * 1000;
+
+function isOverlapping(
+  slotStart: number,
+  slotEnd: number,
+  events: EventSummary[],
+): boolean {
+  return events.some((e) => {
+    const eStart = new Date(e.start).getTime() - GAP_MS;
+    const eEnd   = new Date(e.end).getTime()   + GAP_MS;
+    return slotStart < eEnd && slotEnd > eStart;
+  });
+}
+
+try {
+  let studySlots: { title: string; start: string; end: string }[] = JSON.parse(jsonMatch[0]);
+
+  // Find slots that conflict with existing events and ask Gemini to fix only them
+  const conflicting = studySlots.filter((slot) =>
+    isOverlapping(new Date(slot.start).getTime(), new Date(slot.end).getTime(), existingEvents),
+  );
+
+  if (conflicting.length > 0) {
+    const fixPrompt = `These study sessions overlap with existing events or their 15-min buffer. Reschedule each to a free slot, keeping the same duration. Rules: 08:00-22:00, before ${assignment.dueDate}, 15-min gap around all existing events.
+      Existing events:
+      ${scheduleSummary || '(none)'}
+      Fix these slots: ${JSON.stringify(conflicting)}
+      Return ONLY a JSON array of the corrected slots, no markdown.`;
+
+    const fixRes = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: fixPrompt }] }],
+          generationConfig: { temperature: 0.2, maxOutputTokens: 512 },
+        }),
+      },
     );
+
+    if (fixRes.ok) {
+      const fixData = await fixRes.json();
+      const fixText: string = fixData.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
+      const fixCleaned = fixText.replace(/```(?:json)?/gi, '').replace(/```/g, '').trim();
+      const fixMatch = fixCleaned.match(/\[[\s\S]*\]/);
+      if (fixMatch) {
+        const fixed = JSON.parse(fixMatch[0]);
+        const conflictingStarts = new Set(conflicting.map((s) => s.start));
+        studySlots = [
+          ...studySlots.filter((s) => !conflictingStarts.has(s.start)),
+          ...fixed,
+        ];
+      }
+    }
   }
+
+  // Final safety chek to drop anything is still overlapping
+  const validated = studySlots.filter(
+    (slot) => !isOverlapping(new Date(slot.start).getTime(), new Date(slot.end).getTime(), existingEvents),
+  );
+
+  return NextResponse.json({ studySlots: validated });
+} catch {
+  return NextResponse.json(
+    { error: 'AI response contained invalid JSON.', raw: rawText },
+    { status: 500 },
+  );
+}
 }
