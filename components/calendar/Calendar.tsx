@@ -11,6 +11,7 @@ import { CalendarEvent, ViewType } from './types';
 import { generateSampleSchedule } from './SampleSchedule';
 import { AssignmentModal, AssignmentDetails } from './AssignmentModal';
 import { GraduationCap } from 'lucide-react';
+import { DisclaimerModal } from './DisclaimerModal';
 
 const STORAGE_KEY = 'calendar-events';
 
@@ -172,6 +173,7 @@ export function Calendar() {
 
   return (
     <div className="w-full h-full px-3 sm:px-0">
+      <DisclaimerModal />
     <div className="flex flex-col h-full w-full max-w-4xl mx-auto border border-(--primary-text) rounded-xl overflow-hidden bg-background shadow-sm">
       <CalendarTop
         currentDate={currentDate}

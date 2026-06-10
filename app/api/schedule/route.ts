@@ -45,14 +45,21 @@ export async function POST(req: NextRequest) {
 
   const today = new Date().toISOString().split('T')[0];
 
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const tomorrowStr = tomorrow.toISOString().split('T')[0];
+
+  const dayBeforeDue = new Date(assignment.dueDate);
+  dayBeforeDue.setDate(dayBeforeDue.getDate() - 1);
+  const dayBeforeDueStr = dayBeforeDue.toISOString().split('T')[0];
+
   const prompt = `Study scheduler. Today: ${today}.
-    BLOCKED slots (15-min buffer required around each):
-    ${scheduleSummary || '(none)'}
-    Task: "${assignment.title}" (${assignment.type}), due ${assignment.dueDate}, confidence ${assignment.confidence}/10, weight ${assignment.weightage}%${assignment.notes ? `, notes: ${assignment.notes}` : ''}.
-
-    Rules: (IMPORTANT) DO NOT overlap with existing events, LEAVE 15 MINUTE GAP BETWEEN ANY EVENT AND THE NEW STUDY SESSION, 1-2h sessions, plan times between 08:00-22:00 ONLY, MAX 2 sessions/day, spread across days, lower confidence AND higher weight means plan MORE sessions (max 2 in a day), nothing on or after due date, start planning from tomorrow.
-    Output ONLY JSON, no markdown: [{"title":"Study: ${assignment.title}","start":"YYYY-MM-DDTHH:mm:00","end":"YYYY-MM-DDTHH:mm:00"}]`.trim();
-
+  BLOCKED slots (15-min buffer required around each):
+  ${scheduleSummary || '(none)'}
+  Any date not listed above is completely free to schedule in.
+  Task: "${assignment.title}" (${assignment.type}), due ${assignment.dueDate}, confidence ${assignment.confidence}/10, weight ${assignment.weightage}%${assignment.notes ? `, notes: ${assignment.notes}` : ''}.
+  Plan sessions between ${tomorrowStr} and ${dayBeforeDueStr} inclusive. Rules: DO NOT overlap with blocked slots, leave 15-min gap around each blocked slot, 1-2h sessions, 08:00-22:00 only, max 2 sessions/day, spread across days, lower confidence+higher weight=more sessions, fill free days with up to 2 sessions.
+  Output ONLY JSON, no markdown: [{"title":"Study: ${assignment.title}","start":"YYYY-MM-DDTHH:mm:00","end":"YYYY-MM-DDTHH:mm:00"}]`.trim();
   let geminiRes: Response;
   try {
     geminiRes = await fetch(
